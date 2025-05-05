@@ -3,7 +3,7 @@ package com.lx.edusphere_server.service.impl;
 import com.lx.edusphere_server.dto.*;
 import com.lx.edusphere_server.entity.User;
 import com.lx.edusphere_server.entity.VerificationCode;
-import com.lx.edusphere_server.repository.UserRepository;
+import com.lx.edusphere_server.mapper.UserMapper;
 import com.lx.edusphere_server.service.EmailService;
 import com.lx.edusphere_server.service.UserService;
 import com.lx.edusphere_server.service.VerificationCodeService;
@@ -17,14 +17,14 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final VerificationCodeService verificationCodeService;
     private final EmailService emailService;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, VerificationCodeService verificationCodeService, EmailService emailService) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(UserMapper userMapper, VerificationCodeService verificationCodeService, EmailService emailService) {
+        this.userMapper = userMapper;
         this.verificationCodeService = verificationCodeService;
         this.emailService = emailService;
     }
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
         String email = request.getE_mail();
         
         // 检查邮箱是否已存在
-        if (userRepository.existsByEmail(email)) {
+        if (userMapper.existsByEmail(email)) {
             return EmailCodeResponse.error("邮箱已存在", email);
         }
         
@@ -55,12 +55,12 @@ public class UserServiceImpl implements UserService {
         String code = request.getMail_code();
         
         // 检查用户名是否已存在
-        if (userRepository.existsByUserName(userName)) {
+        if (userMapper.existsByUserName(userName)) {
             return BaseResponse.error("用户名已存在");
         }
         
         // 检查邮箱是否已存在
-        if (userRepository.existsByEmail(email)) {
+        if (userMapper.existsByEmail(email)) {
             return BaseResponse.error("邮箱已存在");
         }
         
@@ -77,8 +77,8 @@ public class UserServiceImpl implements UserService {
         user.setRoleId(0); // 默认角色
         user.setCreatedAt(LocalDateTime.now().format(formatter));
         user.setUpdatedAt(LocalDateTime.now().format(formatter));
-        
-        userRepository.save(user);
+
+        userMapper.save(user);
         
         return BaseResponse.success("成功创建用户");
     }
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
         String email = request.getE_mail();
         
         // 检查邮箱是否存在
-        if (!userRepository.existsByEmail(email)) {
+        if (!userMapper.existsByEmail(email)) {
             return EmailCodeResponse.error("邮箱不存在", email);
         }
         
@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
         }
         
         // 查找用户
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        Optional<User> optionalUser = Optional.ofNullable(userMapper.findByEmail(email));
         if (optionalUser.isEmpty()) {
             return BaseResponse.error("用户不存在");
         }
@@ -122,8 +122,8 @@ public class UserServiceImpl implements UserService {
         User user = optionalUser.get();
         user.setPassword(newPassword); // 实际应用中应该对密码进行加密
         user.setUpdatedAt(LocalDateTime.now().format(formatter));
-        
-        userRepository.save(user);
+
+        userMapper.save(user);
         
         return BaseResponse.success("成功重置密码");
     }
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
         String email = request.getE_mail();
         
         // 检查邮箱是否存在
-        if (!userRepository.existsByEmail(email)) {
+        if (!userMapper.existsByEmail(email)) {
             return EmailCodeResponse.error("邮箱不存在", email);
         }
         
@@ -155,13 +155,13 @@ public class UserServiceImpl implements UserService {
         // 根据登录方式查找用户
         if (status == 0) { // 用户名登录
             String userName = request.getUser_name();
-            Optional<User> optionalUser = userRepository.findByUserName(userName);
+            Optional<User> optionalUser = Optional.ofNullable(userMapper.findByUserName(userName));
             if (optionalUser.isPresent()) {
                 user = optionalUser.get();
             }
         } else if (status == 1) { // 邮箱登录
             String email = request.getE_mail();
-            Optional<User> optionalUser = userRepository.findByEmail(email);
+            Optional<User> optionalUser = Optional.ofNullable(userMapper.findByEmail(email));
             if (optionalUser.isPresent()) {
                 user = optionalUser.get();
             }
@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService {
         }
         
         // 查找用户
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        Optional<User> optionalUser = Optional.ofNullable(userMapper.findByEmail(email));
         if (optionalUser.isEmpty()) {
             return LoginResponse.error("用户不存在");
         }
@@ -197,21 +197,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userMapper.existsByEmail(email);
     }
 
     @Override
     public boolean existsByUserName(String userName) {
-        return userRepository.existsByUserName(userName);
+        return userMapper.existsByUserName(userName);
     }
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        return userMapper.findByEmail(email);
     }
 
     @Override
     public User findByUserName(String userName) {
-        return userRepository.findByUserName(userName).orElse(null);
+        return userMapper.findByUserName(userName);
     }
 } 

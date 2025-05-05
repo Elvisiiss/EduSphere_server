@@ -1,33 +1,63 @@
 package com.lx.edusphere_server.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "verification_codes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class VerificationCode {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String email;
-
-    @Column(nullable = false)
     private String code;
-
-    @Column(nullable = false)
     private LocalDateTime expiryDate;
-
-    @Column(nullable = false)
     private String purpose; // 用途：REGISTER, RESET_PASSWORD, LOGIN
+
+    public VerificationCode() {}
+    public VerificationCode(Long id, String email, String code, LocalDateTime expiryDate, String purpose) {
+        this.id = id;
+        this.email = email;
+        this.code = code;
+        this.expiryDate = expiryDate;
+        this.purpose = purpose;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public LocalDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(this.expiryDate);

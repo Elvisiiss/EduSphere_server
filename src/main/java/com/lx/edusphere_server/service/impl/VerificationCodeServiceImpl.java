@@ -1,7 +1,7 @@
 package com.lx.edusphere_server.service.impl;
 
 import com.lx.edusphere_server.entity.VerificationCode;
-import com.lx.edusphere_server.repository.VerificationCodeRepository;
+import com.lx.edusphere_server.mapper.VerificationCodeMapper;
 import com.lx.edusphere_server.service.VerificationCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import java.util.Random;
 @Service
 public class VerificationCodeServiceImpl implements VerificationCodeService {
 
-    private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeMapper verificationCodeMapper;
 
     @Autowired
-    public VerificationCodeServiceImpl(VerificationCodeRepository verificationCodeRepository) {
-        this.verificationCodeRepository = verificationCodeRepository;
+    public VerificationCodeServiceImpl(VerificationCodeMapper VerificationCodeMapper) {
+        this.verificationCodeMapper = VerificationCodeMapper;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(10);
         
         // 查找是否已存在该邮箱的验证码
-        Optional<VerificationCode> existingCode = verificationCodeRepository.findByEmailAndPurpose(email, purpose);
+        Optional<VerificationCode> existingCode = Optional.ofNullable(verificationCodeMapper.findByEmailAndPurpose(email, purpose));
         
         VerificationCode verificationCode;
         if (existingCode.isPresent()) {
@@ -54,12 +54,12 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
             verificationCode.setPurpose(purpose);
         }
         
-        return verificationCodeRepository.save(verificationCode);
+        return verificationCodeMapper.save(verificationCode);
     }
 
     @Override
     public boolean verifyCode(String email, String code, String purpose) {
-        Optional<VerificationCode> optionalCode = verificationCodeRepository.findByEmailAndPurpose(email, purpose);
+        Optional<VerificationCode> optionalCode = Optional.ofNullable(verificationCodeMapper.findByEmailAndPurpose(email, purpose));
         
         if (optionalCode.isPresent()) {
             VerificationCode verificationCode = optionalCode.get();
