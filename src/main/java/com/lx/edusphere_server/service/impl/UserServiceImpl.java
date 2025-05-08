@@ -3,10 +3,11 @@ package com.lx.edusphere_server.service.impl;
 import com.lx.edusphere_server.dto.*;
 import com.lx.edusphere_server.entity.User;
 import com.lx.edusphere_server.entity.VerificationCode;
-import com.lx.edusphere_server.mapper.UserMapper;
+import com.lx.edusphere_server.mapper.*;
 import com.lx.edusphere_server.service.EmailService;
 import com.lx.edusphere_server.service.UserService;
 import com.lx.edusphere_server.service.VerificationCodeService;
+import com.lx.edusphere_server.tools.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,22 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final VerificationCodeService verificationCodeService;
     private final EmailService emailService;
+    private final PowerMapper powerMapper;
+    private final TokenMapper tokenMapper;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
-    public UserServiceImpl(UserMapper userMapper, VerificationCodeService verificationCodeService, EmailService emailService) {
+    public UserServiceImpl(UserMapper userMapper,
+                           VerificationCodeService verificationCodeService,
+                           EmailService emailService,
+                           PowerMapper powerMapper,
+                           TokenMapper tokenMapper
+    ) {
         this.userMapper = userMapper;
         this.verificationCodeService = verificationCodeService;
         this.emailService = emailService;
+        this.powerMapper = powerMapper;
+        this.tokenMapper = tokenMapper;
     }
 
     @Override
@@ -42,7 +52,7 @@ public class UserServiceImpl implements UserService {
         VerificationCode verificationCode = verificationCodeService.saveVerificationCode(email, "REGISTER");
         
         // 发送验证码
-        emailService.sendVerificationCode(email, verificationCode.getCode());
+        emailService.sendVerificationCode(email, verificationCode.getCode_number());
         
         return EmailCodeResponse.success("成功发送验证码", email);
     }
@@ -71,14 +81,11 @@ public class UserServiceImpl implements UserService {
         
         // 创建新用户
         User user = new User();
-        user.setUserName(userName);
-        user.setEmail(email);
-        user.setPassword(password); // 实际应用中应该对密码进行加密
-        user.setRoleId(0); // 默认角色
-        user.setCreatedAt(LocalDateTime.now().format(formatter));
-        user.setUpdatedAt(LocalDateTime.now().format(formatter));
+        user.setUser_name(userName);
+        user.setUser_email(email);
+        user.setUser_password(password); // 实际应用中应该对密码进行加密
 
-        userMapper.save(user);
+        userMapper.CreateUser(user);
         
         return BaseResponse.success("成功创建用户");
     }
@@ -96,7 +103,7 @@ public class UserServiceImpl implements UserService {
         VerificationCode verificationCode = verificationCodeService.saveVerificationCode(email, "RESET_PASSWORD");
         
         // 发送验证码
-        emailService.sendVerificationCode(email, verificationCode.getCode());
+        emailService.sendVerificationCode(email, verificationCode.getCode_number());
         
         return EmailCodeResponse.success("成功发送验证码", email);
     }
@@ -120,10 +127,9 @@ public class UserServiceImpl implements UserService {
         
         // 更新密码
         User user = optionalUser.get();
-        user.setPassword(newPassword); // 实际应用中应该对密码进行加密
-        user.setUpdatedAt(LocalDateTime.now().format(formatter));
+        user.setUser_password(newPassword); // 实际应用中应该对密码进行加密
 
-        userMapper.save(user);
+        userMapper.updatePassword(user);
         
         return BaseResponse.success("成功重置密码");
     }
@@ -141,7 +147,7 @@ public class UserServiceImpl implements UserService {
         VerificationCode verificationCode = verificationCodeService.saveVerificationCode(email, "LOGIN");
         
         // 发送验证码
-        emailService.sendVerificationCode(email, verificationCode.getCode());
+        emailService.sendVerificationCode(email, verificationCode.getCode_number());
         
         return EmailCodeResponse.success("成功发送验证码", email);
     }
@@ -168,11 +174,13 @@ public class UserServiceImpl implements UserService {
         }
         
         // 验证用户和密码
-        if (user == null || !user.getPassword().equals(password)) { // 实际应用中应该使用加密后的密码比较
+        if (user == null || !user.getUser_password().equals(password)) { // 实际应用中应该使用加密后的密码比较
             return LoginResponse.error("账户或密码错误");
         }
-        
-        return LoginResponse.success(user.getEmail(), user.getUserName(), user.getRoleId());
+        String user_token = TokenGenerator.generateToken();
+        tokenMapper.updateToken(user.getUser_name(),user_token);
+        user.setUser_token(user_token);
+        return LoginResponse.success(user.getUser_email(), user.getUser_name(), powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
     }
 
     @Override
@@ -190,9 +198,12 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isEmpty()) {
             return LoginResponse.error("用户不存在");
         }
-        
+
         User user = optionalUser.get();
-        return LoginResponse.success(user.getEmail(), user.getUserName(), user.getRoleId());
+        String user_token = TokenGenerator.generateToken();
+        tokenMapper.updateToken(user.getUser_name(), user_token);
+        user.setUser_token(user_token);
+        return LoginResponse.success(user.getUser_email(), user.getUser_name(),powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
     }
 
     @Override

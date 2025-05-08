@@ -7,21 +7,7 @@ import java.util.Optional;
 
 @Mapper
 public interface VerificationCodeMapper {
-    int insert(VerificationCode verificationCode);
-    int update(VerificationCode verificationCode);
-    VerificationCode selectById(Long id);
-    VerificationCode findByEmailAndPurpose(String email, String purpose);
-
-
-    default Optional<VerificationCode> findByEmailAndPurposeOptional(String email, String purpose) {
-        return Optional.ofNullable(findByEmailAndPurpose(email, purpose));
-    }
-    default VerificationCode save(VerificationCode verificationCode) {
-        if (verificationCode.getId() == null) {
-            insert(verificationCode);
-        } else {
-            update(verificationCode);
-        }
-        return verificationCode;
-    }
+    VerificationCode findByEmailAndPurpose(String code_email, String code_purpose);
+    int saveVerificationCode(VerificationCode verificationCode);
+    int updateVerificationCode(VerificationCode verificationCode);
 }

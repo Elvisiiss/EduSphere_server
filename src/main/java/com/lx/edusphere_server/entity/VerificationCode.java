@@ -4,62 +4,63 @@ import java.time.LocalDateTime;
 
 public class VerificationCode {
 
-    private Long id;
-    private String email;
-    private String code;
-    private LocalDateTime expiryDate;
-    private String purpose; // 用途：REGISTER, RESET_PASSWORD, LOGIN
+    private Long code_id;
+    private String code_email;
+    private String code_number;
+    private LocalDateTime expiry_date;
+    private String code_purpose; // 用途：REGISTER, RESET_PASSWORD, LOGIN
 
     public VerificationCode() {}
-    public VerificationCode(Long id, String email, String code, LocalDateTime expiryDate, String purpose) {
-        this.id = id;
-        this.email = email;
-        this.code = code;
-        this.expiryDate = expiryDate;
-        this.purpose = purpose;
+
+    public VerificationCode(String code_email, Long code_id, String code_number, LocalDateTime expiry_date, String code_purpose) {
+        this.code_email = code_email;
+        this.code_id = code_id;
+        this.code_number = code_number;
+        this.expiry_date = expiry_date;
+        this.code_purpose = code_purpose;
     }
 
-    public Long getId() {
-        return id;
+    public String getCode_purpose() {
+        return code_purpose;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCode_purpose(String code_purpose) {
+        this.code_purpose = code_purpose;
     }
 
-    public String getEmail() {
-        return email;
+    public LocalDateTime getExpiry_date() {
+        return expiry_date;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setExpiry_date(LocalDateTime expiry_date) {
+        this.expiry_date = expiry_date;
     }
 
-    public String getCode() {
-        return code;
+    public String getCode_number() {
+        return code_number;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setCode_number(String code_number) {
+        this.code_number = code_number;
     }
 
-    public LocalDateTime getExpiryDate() {
-        return expiryDate;
+    public String getCode_email() {
+        return code_email;
     }
 
-    public void setExpiryDate(LocalDateTime expiryDate) {
-        this.expiryDate = expiryDate;
+    public void setCode_email(String code_email) {
+        this.code_email = code_email;
     }
 
-    public String getPurpose() {
-        return purpose;
+    public Long getCode_id() {
+        return code_id;
     }
 
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
+    public void setCode_id(Long code_id) {
+        this.code_id = code_id;
     }
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(this.expiryDate);
+        return LocalDateTime.now().isAfter(this.expiry_date);
     }
-} 
+}

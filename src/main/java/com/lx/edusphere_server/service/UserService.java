@@ -3,6 +3,7 @@ package com.lx.edusphere_server.service;
 import com.lx.edusphere_server.dto.*;
 import com.lx.edusphere_server.entity.User;
 
+
 public interface UserService {
     // 发送注册验证码
     EmailCodeResponse sendRegisterCode(EmailRequest request);

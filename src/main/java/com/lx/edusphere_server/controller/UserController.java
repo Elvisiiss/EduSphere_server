@@ -72,13 +72,4 @@ public class UserController {
     public LoginResponse loginWithCode(@RequestBody LoginCodeRequest request) {
         return userService.loginWithCode(request);
     }
-
-    /**
-     * 获取用户数据（测试用）
-     */
-    @PostMapping("/get-data")
-    public BaseResponse getData(@RequestBody GetDataRequest request) {
-        // 简单返回，实际应用中应该返回更多用户数据
-        return BaseResponse.success("获取数据成功");
-    }
 } 

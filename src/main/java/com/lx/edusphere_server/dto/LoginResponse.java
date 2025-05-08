@@ -3,25 +3,29 @@ package com.lx.edusphere_server.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Set;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class LoginResponse extends BaseResponse {
-    private String e_mail;
+    private String user_email;
     private String user_name;
-    private Integer role_id;
+    private Set<Integer> powers_id;
+    private String user_token;
     
-    public LoginResponse(String msg, String code, String email, String userName, Integer roleId) {
+    public LoginResponse(String msg, String code, String user_email, String user_name, Set<Integer> powers_id, String user_token) {
         super(msg, code);
-        this.e_mail = email;
-        this.user_name = userName;
-        this.role_id = roleId;
+        this.user_email = user_email;
+        this.user_name = user_name;
+        this.powers_id = powers_id;
+        this.user_token = user_token;
     }
     
-    public static LoginResponse success(String email, String userName, Integer roleId) {
-        return new LoginResponse("成功登录", "success", email, userName, roleId);
+    public static LoginResponse success(String user_email, String user_name, Set<Integer> powers_id, String user_token) {
+        return new LoginResponse("成功登录", "success", user_email, user_name, powers_id, user_token);
     }
     
     public static LoginResponse error(String msg) {
-        return new LoginResponse(msg, "Error", null, null, null);
+        return new LoginResponse(msg, "Error", null, null, null,null);
     }
 } 

@@ -43,18 +43,19 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         if (existingCode.isPresent()) {
             // 更新现有验证码
             verificationCode = existingCode.get();
-            verificationCode.setCode(code);
-            verificationCode.setExpiryDate(expiryDate);
+            verificationCode.setCode_number(code);
+            verificationCode.setExpiry_date(expiryDate);
+            verificationCodeMapper.updateVerificationCode(verificationCode);
         } else {
             // 创建新验证码
             verificationCode = new VerificationCode();
-            verificationCode.setEmail(email);
-            verificationCode.setCode(code);
-            verificationCode.setExpiryDate(expiryDate);
-            verificationCode.setPurpose(purpose);
+            verificationCode.setCode_email(email);
+            verificationCode.setCode_number(code);
+            verificationCode.setExpiry_date(expiryDate);
+            verificationCode.setCode_purpose(purpose);
+            verificationCodeMapper.saveVerificationCode(verificationCode);
         }
-        
-        return verificationCodeMapper.save(verificationCode);
+        return verificationCodeMapper.findByEmailAndPurpose(email, purpose);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
             }
             
             // 验证码是否匹配
-            return verificationCode.getCode().equals(code);
+            return verificationCode.getCode_number().equals(code);
         }
         
         return false;
