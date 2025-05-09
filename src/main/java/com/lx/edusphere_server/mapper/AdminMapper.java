@@ -9,4 +9,6 @@ import java.util.List;
 public interface AdminMapper {
     List<User> selectAll();
     int deleteById(Long user_id);
+    User selectById(Long user_id);
+    void updateUserPassword(Long user_id, String user_password);
 }

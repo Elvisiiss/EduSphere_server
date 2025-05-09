@@ -10,4 +10,8 @@
     <delete id="deleteById">
         DELETE FROM users WHERE user_id = #{user_id}
     </delete>
+
+    <select id="selectById" resultType="com.lx.edusphere_server.entity.User">
+        SELECT user_id,user_name,user_email,user_token FROM users WHERE user_id = #{user_id}
+    </select>
 </mapper>
