@@ -3,15 +3,78 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lx.edusphere_server.mapper.AdminMapper">
 
-    <select id="selectAll" resultType="com.lx.edusphere_server.entity.User">
-        SELECT * FROM users
-    </select>
+    <insert id="add_one_user_users">
+        INSERT INTO users
+            (user_id, user_name, user_email, user_password, user_token, user_number)
+        VALUES
+            (null,#{user_name},#{user_email},#{user_password},null,#{user_number})
+    </insert>
 
-    <delete id="deleteById">
-        DELETE FROM users WHERE user_id = #{user_id}
-    </delete>
+    <insert id="add_one_user_user_information">
+        INSERT INTO user_information
+            (user_id, user_nick_name, user_gender, user_birthday, user_personalized_signature, user_profile_picture)
+        VALUES
+            (#{user_id},null,null,null,null,null)
+    </insert>
+
+    <resultMap id="GetAllUsersInfoResultMap" type="com.lx.edusphere_server.dto.admin.GetAllUsersInfo">
+        <result property="user_id" column="user_id"/>
+        <result property="user_name" column="user_name"/>
+        <result property="user_email" column="user_email"/>
+        <result property="user_token" column="user_token"/>
+        <result property="user_number" column="user_number"/>
+        <collection property="user_roles_id" ofType="java.lang.Integer">
+            <result column="role_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="get_all_users" resultMap="GetAllUsersInfoResultMap">
+        SELECT
+            users.user_id,
+            users.user_name,
+            users.user_email,
+            users.user_token,
+            users.user_number,
+            role_user.role_id
+        FROM
+            users
+                LEFT JOIN
+            role_user ON users.user_id = role_user.user_id
+        ORDER BY
+            users.user_id
+    </select>
 
     <select id="selectById" resultType="com.lx.edusphere_server.entity.User">
-        SELECT user_id,user_name,user_email,user_token FROM users WHERE user_id = #{user_id}
+        SELECT * FROM users WHERE user_id = #{user_id}
     </select>
+
+    <select id="select_user_id_by_user_number" resultType="java.lang.Long">
+        SELECT user_id FROM users WHERE user_number = #{user_number}
+    </select>
+
+    <update id="updateUserPassword">
+        UPDATE users
+        SET user_password = #{user_password}
+        WHERE user_id = #{user_id};
+    </update>
+
+    <update id="updateUserInformation">
+        UPDATE users
+        SET user_name = #{user_name},
+            user_number = #{user_number},
+            user_email  = #{user_email}
+        WHERE user_id = #{user_id};
+    </update>
+
+    <update id="remove_user_role">
+        DELETE FROM role_user WHERE user_id = #{user_id};
+    </update>
+    <update id="renew_user_role">
+        <if test="user_roles_id != null and user_roles_id.size() > 0">
+            INSERT INTO role_user (user_id, role_id) VALUES
+            <foreach collection="user_roles_id" item="role_id" separator=",">
+                (#{user_id}, #{role_id})
+            </foreach>;
+        </if>
+    </update>
 </mapper>

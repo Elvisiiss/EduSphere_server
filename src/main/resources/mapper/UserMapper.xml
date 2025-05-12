@@ -3,29 +3,35 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lx.edusphere_server.mapper.UserMapper">
 
-    <select id="findByEmail" resultType="com.lx.edusphere_server.entity.User">
-        SELECT * FROM users WHERE user_email = #{user_email}
+    <select id="get_my_information_by_token" resultType="com.lx.edusphere_server.entity.User_information">
+        SELECT *
+        FROM user_information
+        WHERE user_id =
+              (SELECT user_id FROM users WHERE user_token = #{user_token});
     </select>
 
-    <select id="findByUserName" resultType="com.lx.edusphere_server.entity.User">
-        SELECT * FROM users WHERE user_name = #{user_name}
+    <select id="is_this_token_mine">
+        SELECT COUNT(*) > 0 FROM users WHERE user_id = #{user_id} AND user_token = #{user_token};
     </select>
 
-    <select id="existsByEmail" resultType="boolean">
-        SELECT COUNT(*) > 0 FROM users WHERE user_email = #{user_email}
-    </select>
-
-    <select id="existsByUserName" resultType="boolean">
-        SELECT COUNT(*) > 0 FROM users WHERE user_name = #{user_name}
-    </select>
-
-    <update id="updatePassword" parameterType="com.lx.edusphere_server.entity.User">
-        UPDATE users SET user_password = #{user_password} WHERE user_name = #{user_name}
+    <update id="set_my_information">
+        UPDATE user_information
+        SET user_nick_name = #{user_nick_name},
+            user_gender = #{user_gender},
+            user_birthday = #{user_birthday},
+            user_personalized_signature = #{user_personalized_signature},
+            user_profile_picture = #{user_profile_picture}
+        WHERE user_id = #{user_id}
     </update>
 
-    <insert id="CreateUser" parameterType="com.lx.edusphere_server.entity.User">
-        INSERT INTO users(user_name, user_email, user_password, user_token)
-        VALUES(#{user_name}, #{user_email}, #{user_password},null)
-    </insert>
+    <delete id="delete_one_user_roles_by_user_id">
+        DELETE FROM role_user WHERE user_id = #{user_id};
+    </delete>
+    <delete id="delete_one_user_information_by_user_id">
+        DELETE FROM user_information WHERE user_id = #{user_id};
+    </delete>
+    <delete id="delete_one_user_by_user_id">
+        DELETE FROM users WHERE user_id = #{user_id};
+    </delete>
 
 </mapper>

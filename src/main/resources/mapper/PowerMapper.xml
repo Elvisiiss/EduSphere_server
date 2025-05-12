@@ -33,7 +33,10 @@
              powers ON role_power.power_id = powers.power_id
         WHERE users.user_token = #{user_token}
           AND powers.power_name = #{power_name};
+    </select>
 
+    <select id="get_all_powers" resultType="com.lx.edusphere_server.dto.Power.GetAllPowerInfo">
+        SELECT * FROM powers
     </select>
 
 

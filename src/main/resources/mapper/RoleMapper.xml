@@ -9,6 +9,18 @@
         WHERE user_id = #{user_id}
     </select>
 
+    <select id="get_role_id_by_role_name">
+        SELECT role_id
+        FROM roles
+        WHERE role_name = #{role_name}
+    </select>
+
+    <select id="is_there_such_a_name">
+        SELECT COUNT(*) > 0
+        FROM roles
+        WHERE role_name = #{role_name}
+    </select>
+
     <select id="getRoleIdsByUserName" resultType="java.lang.Integer">
         SELECT role_user.role_id
         FROM role_user
@@ -24,4 +36,85 @@
         WHERE users.user_id = #{user_id};
     </select>
 
+    <insert id="add_one_roles" parameterType="com.lx.edusphere_server.dto.Role.ChooseOneRole">
+        <selectKey keyProperty="role_id" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO roles (role_name)
+        VALUES (#{role_name});
+    </insert>
+
+    <!-- 角色信息(GetAllRolesInfo)的结果映射 -->
+    <resultMap id="GetAllRolesInfoResultMap" type="com.lx.edusphere_server.dto.Role.GetAllRolesInfo">
+        <result property="role_id" column="role_id"/>
+        <result property="role_name" column="role_name"/>
+        <!-- 关联权限ID集合 -->
+        <collection property="powers" ofType="java.lang.Integer">
+            <result column="power_id"/>
+        </collection>
+    </resultMap>
+
+    <!-- 获取所有角色及其权限的SQL查询 -->
+    <select id="get_all_roles" resultMap="GetAllRolesInfoResultMap">
+        SELECT
+            roles.role_id,
+            roles.role_name,
+            role_power.power_id
+        FROM
+            roles
+                LEFT JOIN
+            role_power ON roles.role_id = role_power.role_id
+        ORDER BY
+            roles.role_id
+    </select>
+
+    <!-- ChooseOneRole的结果映射 -->
+    <resultMap id="ChooseOneRoleResultMap" type="com.lx.edusphere_server.dto.Role.ChooseOneRole">
+        <id property="role_id" column="role_id"/>
+        <result property="role_name" column="role_name"/>
+        <!-- 关联权限ID集合 -->
+        <collection property="role_powers" ofType="java.lang.Integer">
+            <result column="power_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="get_role_info_by_role_id" parameterType="long" resultMap="ChooseOneRoleResultMap">
+        SELECT
+            roles.role_id,
+            roles.role_name,
+            role_power.power_id
+        FROM
+            roles
+                LEFT JOIN
+            role_power ON roles.role_id = role_power.role_id
+        WHERE
+            roles.role_id = #{roleId}
+    </select>
+
+    <!-- 更新角色权限信息 -->
+    <update id="remove_role_power">
+        DELETE FROM role_power WHERE role_id = #{role_id};
+    </update>
+
+    <update id="renew_role_power" parameterType="com.lx.edusphere_server.dto.Role.ChooseOneRole">
+        <if test="role_powers != null and !role_powers.isEmpty()">
+            INSERT INTO role_power (role_id, power_id) VALUES
+            <foreach collection="role_powers" item="power_id" separator=",">
+                (#{role_id}, #{power_id})
+            </foreach>
+        </if>
+    </update>
+
+    <update id="renew_role_name">
+        UPDATE roles SET role_name = #{role_name}
+        WHERE role_id = #{role_id}
+    </update>
+
+    <delete id="remove_role_user">
+        DELETE FROM role_user WHERE role_id = #{role_id};
+    </delete>
+    <!-- 删除角色 -->
+    <delete id="delete_role">
+        DELETE FROM roles WHERE role_id = #{role_id};
+    </delete>
 </mapper>
