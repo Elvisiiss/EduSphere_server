@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.edusphere_server.mapper.ClassMapper">
+
+    <insert id="add_one_class">
+        INSERT INTO classes(class_name, grade, head_teacher_id)
+        VALUES (#{class_name}, #{class_grade}, #{head_teacher_id})
+    </insert>
+
+    <!-- 获取所有班级基本信息 -->
+    <select id="selectAllClassesBasicInfo" resultType="com.lx.edusphere_server.dto.classes.GetOneClass">
+        SELECT
+            class_id,
+            class_name,
+            grade as class_grade,
+            head_teacher_id
+        FROM classes
+    </select>
+
+    <!-- 获取指定班级的学生ID集合 -->
+    <select id="selectStudentIdsByClassId" parameterType="Long" resultType="Integer">
+        SELECT student_id
+        FROM class_students
+        WHERE class_id = #{classId}
+    </select>
+
+    <!-- 获取指定班级的学科ID集合 -->
+    <select id="selectSubjectIdsByClassId" parameterType="Long" resultType="Integer">
+        SELECT DISTINCT subject_id
+        FROM class_teachers
+        WHERE class_id = #{classId}
+    </select>
+
+    <!-- 获取指定班级的学科教师关联信息 -->
+    <select id="selectSubjectTeachersByClassId" parameterType="Long" resultType="com.lx.edusphere_server.entity.subject_teacher">
+        SELECT
+            teacher_id,
+            subject_id
+        FROM class_teachers
+        WHERE class_id = #{classId}
+    </select>
+
+    <insert id="for_class_add_subject_teacher">
+        INSERT INTO class_teachers(class_id, teacher_id, subject_id)
+        VALUES (#{class_id},#{teacher_id},#{subject_id})
+    </insert>
+
+    <select id="get_class_id_by_class_name">
+        SELECT class_id FROM classes WHERE class_name = #{class_name}
+    </select>
+
+    <update id="update_class">
+        UPDATE classes
+        SET
+            class_name = CASE WHEN class_name = #{class_name} THEN class_name ELSE #{class_name} END,
+            grade = #{class_grade}
+        WHERE class_id = #{class_id}
+    </update>
+
+
+    <delete id="delete_class_exam_scores">
+        DELETE FROM exam_scores WHERE class_id = #{class_id}
+    </delete>
+
+    <delete id="delete_class_in_students">
+        DELETE FROM class_students WHERE class_id = #{class_id}
+    </delete>
+
+    <delete id="delete_class_in_teacher">
+        DELETE FROM class_teachers WHERE class_id = #{class_id}
+    </delete>
+
+    <delete id="delete_class">
+        DELETE FROM classes WHERE class_id = #{class_id}
+    </delete>
+
+</mapper>

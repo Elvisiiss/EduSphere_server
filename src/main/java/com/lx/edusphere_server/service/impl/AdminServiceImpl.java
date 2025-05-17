@@ -7,21 +7,28 @@ import com.lx.edusphere_server.dto.Role.ChooseOneRole;
 import com.lx.edusphere_server.dto.Role.GetAllRolesInfo;
 import com.lx.edusphere_server.dto.admin.AdminChooseOneUser;
 import com.lx.edusphere_server.dto.admin.GetAllUsersInfo;
+import com.lx.edusphere_server.dto.classes.ChooseOneClass;
+import com.lx.edusphere_server.dto.classes.GetOneClass;
+import com.lx.edusphere_server.dto.subject.ChooseOneSubject;
+import com.lx.edusphere_server.dto.teacher.GetAllTeacher;
+import com.lx.edusphere_server.entity.Subject;
 import com.lx.edusphere_server.entity.User;
-import com.lx.edusphere_server.mapper.AdminMapper;
-import com.lx.edusphere_server.mapper.PowerMapper;
-import com.lx.edusphere_server.mapper.RoleMapper;
+import com.lx.edusphere_server.entity.subject_teacher;
+import com.lx.edusphere_server.mapper.*;
 import com.lx.edusphere_server.service.AdminService;
 import com.lx.edusphere_server.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AdminServiceImpl implements AdminService {
     private final AdminMapper adminMapper;
     private final RoleMapper roleMapper;
     private final PowerMapper powerMapper;
+    private final SubjectMapper subjectMapper;
+    private final ClassMapper classMapper;
 
     private final UserService userService;
 
@@ -30,6 +37,8 @@ public class AdminServiceImpl implements AdminService {
             AdminMapper adminMapper,
             RoleMapper roleMapper,
             PowerMapper powerMapper,
+            SubjectMapper subjectMapper,
+            ClassMapper classMapper,
             //服务
             UserService userService
     ) {
@@ -37,10 +46,11 @@ public class AdminServiceImpl implements AdminService {
         this.adminMapper = adminMapper;
         this.roleMapper = roleMapper;
         this.powerMapper = powerMapper;
+        this.subjectMapper = subjectMapper;
+        this.classMapper = classMapper;
         //服务
         this.userService = userService;
     }
-
 
 
 
@@ -56,9 +66,19 @@ public class AdminServiceImpl implements AdminService {
         if(!powerMapper.ifThisTokenCanDoThis(adminChooseOneUser.getUser_token(),"增加角色")){
             return BaseResponse.error("增加角色失败，权限不够。");
         }
+        if(adminChooseOneUser.getUser_number().isEmpty()){
+            return BaseResponse.error("增加角色失败，学号不能为空。");
+        }
+        if(adminChooseOneUser.getUser_name().isEmpty()){
+            return BaseResponse.error("增加角色失败，用户名不能为空。");
+        }
+        if(adminChooseOneUser.getUser_email().isEmpty()){
+            return BaseResponse.error("增加角色失败，邮箱不能为空。");
+        }
         adminMapper.add_one_user_users(adminChooseOneUser);
         adminChooseOneUser.setUser_id(adminMapper.select_user_id_by_user_number(adminChooseOneUser.getUser_number()));
         adminMapper.add_one_user_user_information(adminChooseOneUser);
+        roleMapper.create_user_from_admin_page(adminChooseOneUser.getUser_email());
         return BaseResponse.success("增加角色成功");
     }
     // 获取所有用户列表(用户管理：查)
@@ -132,6 +152,9 @@ public class AdminServiceImpl implements AdminService {
         if(!powerMapper.ifThisTokenCanDoThis(chooseOneRole.getUser_token(),"增加角色")){
             return BaseResponse.error("增加角色失败，权限不够。");
         }
+        if(chooseOneRole.getRole_name().isEmpty()){
+            return BaseResponse.error("增加角色失败，名称不能为空。");
+        }
         if(roleMapper.is_there_such_a_name(chooseOneRole.getRole_name())){
             return BaseResponse.error("增加角色失败，名称已存在。");
         }
@@ -166,9 +189,9 @@ public class AdminServiceImpl implements AdminService {
         if(!powerMapper.ifThisTokenCanDoThis(chooseOneRole.getUser_token(),"更新角色信息")){
             return BaseResponse.error("更新角色信息失败，权限不足");
         }
-        if(roleMapper.is_there_such_a_name(chooseOneRole.getRole_name())){
-            return BaseResponse.error("更新角色信息失败，名称已存在。");
-        }
+//        if(roleMapper.is_there_such_a_name(chooseOneRole.getRole_name())){
+//            return BaseResponse.error("更新角色信息失败，名称已存在。");
+//        }
         roleMapper.remove_role_power(chooseOneRole);
         roleMapper.renew_role_name(chooseOneRole);
         try{
@@ -206,4 +229,120 @@ public class AdminServiceImpl implements AdminService {
         return powerMapper.get_all_powers();
     }
 
+
+
+
+
+
+    /**
+     * 学科管理 subjects表
+     */
+    //增加一个学科(学科管理：增)
+    @Override
+    public BaseResponse add_one_subject(ChooseOneSubject choose_one_subject) {
+        subjectMapper.add_one_subject(choose_one_subject);
+        return BaseResponse.success("增加学科成功");
+    }
+
+    //获取所有学科信息(学科管理:查)
+    @Override
+    public List<Subject> get_all_subjects(OnlyToken onlyToken) {
+        return subjectMapper.get_all_subjects();
+    }
+
+    //修改学科(学科管理:改)
+    @Override
+    public BaseResponse update_subject(ChooseOneSubject choose_one_subject) {
+        subjectMapper.update_subject(choose_one_subject);
+        return BaseResponse.success("修改学科成功");
+    }
+
+
+    //删除学科(学科管理:删)
+    @Override
+    public BaseResponse delete_subject(ChooseOneSubject choose_one_subject) {
+        if(subjectMapper.is_there_a_class_that_has_this_course(choose_one_subject.getSubject_id())){
+            return BaseResponse.error("删除学科失败，有班级正在学习这门科。");
+        }
+        subjectMapper.delete_subject(choose_one_subject.getSubject_id());
+        return BaseResponse.success("删除学科成功");
+    }
+
+
+    /**
+     * 班级管理  classes表
+     * */
+    //增加一个班级(班级管理：增)
+    @Override
+    public BaseResponse add_one_class(ChooseOneClass choose_one_class) {
+        if(classMapper.get_class_id_by_class_name(choose_one_class.getClass_name())!=null){
+            return BaseResponse.error("班级名已存在");
+        }
+        classMapper.add_one_class(choose_one_class);
+        choose_one_class.setClass_id(classMapper.get_class_id_by_class_name(choose_one_class.getClass_name()));
+        for (subject_teacher subject_teacher : choose_one_class.getSubject_teacher()) {
+            classMapper.for_class_add_subject_teacher(choose_one_class.getClass_id(),subject_teacher.getTeacher_id(),subject_teacher.getSubject_id());
+        }
+        return BaseResponse.success("增加班级成功");
+    }
+
+    //获取所有的班级(班级管理：查)
+    @Override
+    public List<GetOneClass> get_all_classes(OnlyToken onlyToken) {
+//        if(!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(),"查看所有班级信息")){
+//            return List.of();
+//        }
+
+        // 获取所有班级的基本信息
+        List<GetOneClass> classes = classMapper.selectAllClassesBasicInfo();
+
+        // 为每个班级填充详细信息
+        for (GetOneClass cls : classes) {
+            // 获取学生ID集合
+            Set<Integer> studentIds = classMapper.selectStudentIdsByClassId(cls.getClass_id());
+            cls.setStudents_id(studentIds);
+
+
+            // 获取学科教师关联信息
+            Set<subject_teacher> subjectTeachers = classMapper.selectSubjectTeachersByClassId(cls.getClass_id());
+            cls.setSubject_teacher(subjectTeachers);
+        }
+
+        return classes;
+    }
+
+    //获取所有的教师
+    @Override
+    public List<GetAllTeacher> get_all_teacher(OnlyToken onlyToken) {
+        return adminMapper.get_all_teacher();
+    }
+
+
+    //修改班级信息(班级管理:改)
+    @Override
+    public BaseResponse update_class_information(ChooseOneClass choose_one_class) {
+        classMapper.update_class(choose_one_class);
+        classMapper.delete_class_in_teacher(choose_one_class.getClass_id());
+        for (subject_teacher subject_teacher : choose_one_class.getSubject_teacher()) {
+            classMapper.for_class_add_subject_teacher(choose_one_class.getClass_id(),subject_teacher.getTeacher_id(),subject_teacher.getSubject_id());
+
+        }
+        return BaseResponse.success("修改班级信息成功");
+    }
+
+    @Override
+    public BaseResponse update_class_people(ChooseOneClass choose_one_class) {
+        return BaseResponse.success("修改班级人员成功");
+    }
+
+    //删除班级(班级管理:删)
+    @Override
+    public BaseResponse delete_class(ChooseOneClass choose_one_class) {
+        Long class_id = choose_one_class.getClass_id();
+        classMapper.delete_class_exam_scores(class_id);
+        classMapper.delete_class_in_students(class_id);
+        classMapper.delete_class_in_teacher(class_id);
+        classMapper.delete_class(class_id);
+        return BaseResponse.success("删除班级成功");
+    }
 }

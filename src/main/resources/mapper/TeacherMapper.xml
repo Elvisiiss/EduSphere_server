@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.edusphere_server.mapper.TeacherMapper">
+
+    <resultMap id="TeacherInfoResultMap" type="com.lx.edusphere_server.dto.teacher.TeacherInfoResponse">
+        <result property="teacherId" column="user_id"/>
+        <result property="teacherName" column="user_name"/>
+        <result property="teacherEmail" column="user_email"/>
+        <result property="teacherNumber" column="user_number"/>
+    </resultMap>
+
+    <select id="getTeacherInfo" resultMap="TeacherInfoResultMap">
+        SELECT user_id, user_name, user_email, user_number
+        FROM users
+        WHERE user_token = #{user_token}
+    </select>
+
+    <resultMap id="TeacherClassResultMap" type="com.lx.edusphere_server.dto.teacher.TeacherClassResponse">
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="grade" column="grade"/>
+        <result property="headTeacherId" column="head_teacher_id"/>
+        <result property="studentCount" column="student_count"/>
+        <collection property="subjects" ofType="com.lx.edusphere_server.entity.Subject">
+            <result property="subject_id" column="subject_id"/>
+            <result property="subject_name" column="subject_name"/>
+            <result property="subject_desc" column="subject_desc"/>
+        </collection>
+    </resultMap>
+
+    <select id="getTeacherBasicClasses" resultType="com.lx.edusphere_server.dto.teacher.TeacherClassResponse">
+        SELECT DISTINCT
+            c.class_id as classId,
+            c.class_name as className,
+            c.grade,
+            c.head_teacher_id as headTeacherId,
+            (SELECT COUNT(*) FROM class_students WHERE class_id = c.class_id) as studentCount
+        FROM
+            classes c
+                JOIN
+            class_teachers ct ON c.class_id = ct.class_id
+        WHERE
+            ct.teacher_id = (SELECT user_id FROM users WHERE user_token = #{user_token}) OR c.head_teacher_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+        GROUP BY
+            c.class_id, c.class_name, c.grade, c.head_teacher_id
+    </select>
+    <select id="getSubjectsForClass" resultType="com.lx.edusphere_server.entity.Subject">
+        SELECT
+            s.subject_id as subject_id,
+            s.subject_name as subject_name,
+            s.subject_desc as subject_desc
+        FROM
+            subjects s
+                JOIN
+            class_teachers ct ON s.subject_id = ct.subject_id
+        WHERE
+            ct.class_id = #{class_id}
+          AND
+            ct.teacher_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+    </select>
+    <select id="getSubjectsForClassForAll" resultType="com.lx.edusphere_server.entity.Subject">
+        SELECT
+            s.subject_id as subject_id,
+            s.subject_name as subject_name,
+            s.subject_desc as subject_desc
+        FROM
+            subjects s
+                JOIN
+            class_teachers ct ON s.subject_id = ct.subject_id
+        WHERE
+            ct.class_id = #{class_id}
+    </select>
+
+
+
+    <resultMap id="ClassStudentResultMap" type="com.lx.edusphere_server.dto.teacher.ClassStudentResponse">
+        <result property="studentId" column="user_id"/>
+        <result property="studentName" column="user_name"/>
+        <result property="studentNumber" column="user_number"/>
+    </resultMap>
+
+    <select id="getClassStudents" resultMap="ClassStudentResultMap">
+        SELECT
+            u.user_id,
+            u.user_name,
+            u.user_number
+        FROM
+            users u
+                JOIN
+            class_students cs ON u.user_id = cs.student_id
+        WHERE
+            cs.class_id = #{class_id}
+    </select>
+
+    <select id="getTeacherIdByToken" resultType="java.lang.Long">
+        SELECT user_id FROM users WHERE user_token = #{token}
+    </select>
+
+    <insert id="submitStudentScore" parameterType="com.lx.edusphere_server.entity.ExamScore">
+        INSERT INTO exam_scores (
+            class_id,
+            student_id,
+            subject_id,
+            exam_name,
+            exam_date,
+            score,
+            grader_id,
+            comment
+        ) VALUES (
+                     #{classId},
+                     #{studentId},
+                     #{subjectId},
+                     #{examName},
+                     #{examDate},
+                     #{score},
+                     #{graderId},
+                     #{comment}
+                 )
+    </insert>
+    <insert id="import_student_scores">
+        INSERT INTO exam_scores (
+            class_id,
+            student_id,
+            subject_id,
+            exam_name,
+            exam_date,
+            score,
+            grader_id,
+            comment
+        ) VALUES (
+                     #{class_id},
+                     #{student_id},
+                     #{subject_id},
+                     #{exam_name},
+                     #{exam_date},
+                     #{score},
+                     #{grader_id},
+                     #{comment}
+                 )
+    </insert>
+
+
+    <update id="updateStudentScore" parameterType="com.lx.edusphere_server.dto.teacher.UpdateScoreRequest">
+        UPDATE exam_scores
+        SET
+            score = #{score},
+            comment = #{comment},
+            update_time = NOW()
+        WHERE
+            score_id = #{score_id}
+    </update>
+
+    <resultMap id="ClassScoreResultMap" type="com.lx.edusphere_server.dto.teacher.ClassScoreResponse">
+        <result property="scoreId" column="score_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentNumber" column="student_number"/>
+        <result property="examName" column="exam_name"/>
+        <result property="examDate" column="exam_date"/>
+        <result property="score" column="score"/>
+        <result property="comment" column="comment"/>
+    </resultMap>
+
+    <select id="getClassScores" resultMap="ClassScoreResultMap">
+        SELECT
+            es.score_id,
+            es.student_id,
+            u.user_name as student_name,
+            u.user_number as student_number,
+            es.exam_name,
+            es.exam_date,
+            es.score,
+            es.comment
+        FROM
+            exam_scores es
+                JOIN
+            users u ON es.student_id = u.user_id
+        WHERE
+            es.class_id = #{class_id}
+          AND es.subject_id = #{subject_id}
+        <if test="exam_name != null">
+            AND es.exam_name = #{exam_name}
+        </if>
+        ORDER BY
+            es.exam_date DESC
+    </select>
+
+    <resultMap id="OtherSubjectScoreResultMap" type="com.lx.edusphere_server.dto.teacher.OtherSubjectScoreResponse">
+        <result property="subjectName" column="subject_name"/>
+        <result property="examName" column="exam_name"/>
+        <result property="examDate" column="exam_date"/>
+        <result property="averageScore" column="average_score"/>
+        <result property="maxScore" column="max_score"/>
+        <result property="minScore" column="min_score"/>
+    </resultMap>
+
+    <select id="getOtherSubjectScores" resultMap="OtherSubjectScoreResultMap">
+        SELECT
+            s.subject_name,
+            es.exam_name,
+            es.exam_date,
+            AVG(es.score) as average_score,
+            MAX(es.score) as max_score,
+            MIN(es.score) as min_score
+        FROM
+            exam_scores es
+                JOIN
+            subjects s ON es.subject_id = s.subject_id
+        WHERE
+            es.class_id = #{class_id}
+          AND es.subject_id != #{subject_id}
+        GROUP BY
+            s.subject_name, es.exam_name, es.exam_date
+        ORDER BY
+            es.exam_date DESC
+    </select>
+
+    <select id="get_non_class_students">
+        SELECT
+            users.user_id,
+            users.user_name,
+            users.user_number,
+            users.user_email
+        FROM
+            users
+                JOIN
+            role_user ON users.user_id = role_user.user_id
+                LEFT JOIN
+            class_students ON users.user_id = class_students.student_id AND class_students.class_id = #{class_id}
+        WHERE
+            role_user.role_id = 1
+          AND class_students.id IS NULL
+        ORDER BY users.user_id
+        LIMIT #{page}, #{page_size}
+    </select>
+
+    <insert id="add_students_to_class">
+        INSERT INTO class_students(class_id, student_id) VALUES (#{class_id},#{student_id})
+    </insert>
+
+    <delete id="remove_student_from_class">
+        DELETE FROM class_students WHERE class_id = #{class_id} AND student_id = #{student_id}
+    </delete>
+
+    <delete id="delete_student_score">
+        DELETE FROM exam_scores WHERE score_id = #{score_id}
+    </delete>
+
+
+</mapper>

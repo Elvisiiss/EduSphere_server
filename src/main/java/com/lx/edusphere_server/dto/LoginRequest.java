@@ -10,4 +10,5 @@ public class LoginRequest {
     private String e_mail;
     private String passwd;
     private String token;
+    private Long user_id;
 }

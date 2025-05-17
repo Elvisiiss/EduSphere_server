@@ -117,4 +117,20 @@
     <delete id="delete_role">
         DELETE FROM roles WHERE role_id = #{role_id};
     </delete>
+
+    <insert id="create_user_from_login_page">
+        INSERT INTO role_user(role_id, user_id)
+        VALUES (4, (SELECT user_id FROM users WHERE user_email = #{user_email}));
+    </insert>
+
+    <insert id="create_user_from_admin_page">
+        INSERT INTO role_user(role_id, user_id)
+        VALUES (5, (SELECT user_id FROM users WHERE user_email = #{user_email}));
+    </insert>
+
+    <select id="get_all_teacher_name">
+        SELECT DISTINCT users.user_id, user_name
+        FROM users LEFT JOIN role_user ON users.user_id = role_user.user_id
+        WHERE role_user.role_id IN (2, 9)
+    </select>
 </mapper>

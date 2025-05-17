@@ -14,4 +14,6 @@ public interface UserMapper {
     void delete_one_user_roles_by_user_id(Long userId);
     void delete_one_user_information_by_user_id(Long userId);
     void delete_one_user_by_user_id(Long userId);
+
+    Long get_user_id_by_user_token(String user_token);
 }

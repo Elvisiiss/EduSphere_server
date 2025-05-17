@@ -2,6 +2,7 @@ package com.lx.edusphere_server.mapper;
 
 import com.lx.edusphere_server.dto.admin.AdminChooseOneUser;
 import com.lx.edusphere_server.dto.admin.GetAllUsersInfo;
+import com.lx.edusphere_server.dto.teacher.GetAllTeacher;
 import com.lx.edusphere_server.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -21,4 +22,5 @@ public interface AdminMapper {
     void remove_user_role(AdminChooseOneUser adminChooseOneUser);
     void renew_user_role(AdminChooseOneUser adminChooseOneUser);
 
+    List<GetAllTeacher> get_all_teacher();
 }

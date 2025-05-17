@@ -3,6 +3,8 @@ package com.lx.edusphere_server.mapper;
 import com.lx.edusphere_server.dto.BaseResponse;
 import com.lx.edusphere_server.dto.Role.ChooseOneRole;
 import com.lx.edusphere_server.dto.Role.GetAllRolesInfo;
+import com.lx.edusphere_server.entity.Teacher;
+import com.lx.edusphere_server.entity.subject_teacher;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -26,6 +28,9 @@ public interface RoleMapper {
     Long get_role_id_by_role_name(String role_name);
     void remove_role_user(Long roleId);
     void delete_role(ChooseOneRole chooseOneRole);
+    void create_user_from_login_page(String user_email);
+    void create_user_from_admin_page(String user_email);
 
+    List<Teacher> get_all_teacher_name();
 
 }

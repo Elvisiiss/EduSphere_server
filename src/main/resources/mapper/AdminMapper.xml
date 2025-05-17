@@ -77,4 +77,12 @@
             </foreach>;
         </if>
     </update>
+
+    <select id="get_all_teacher">
+        SELECT DISTINCT users.user_id,user_name,role_name
+        FROM users
+        LEFT JOIN role_user ON users.user_id = role_user.user_id
+        LEFT JOIN roles ON roles.role_id = role_user.role_id
+        WHERE role_name = '教师' OR role_name = '班主任'
+    </select>
 </mapper>

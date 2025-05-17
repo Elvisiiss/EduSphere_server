@@ -34,4 +34,8 @@
         DELETE FROM users WHERE user_id = #{user_id};
     </delete>
 
+    <select id="get_user_id_by_user_token">
+        SELECT user_id FROM users WHERE user_token = #{user_token}
+    </select>
+
 </mapper>

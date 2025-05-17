@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.edusphere_server.mapper.StudentMapper">
+
+    <resultMap id="StudentInfoResultMap" type="com.lx.edusphere_server.dto.student.StudentInfoResponse">
+        <result property="studentId" column="user_id"/>
+        <result property="studentName" column="user_name"/>
+        <result property="studentEmail" column="user_email"/>
+        <result property="studentNumber" column="user_number"/>
+    </resultMap>
+
+    <select id="getStudentInfo" resultMap="StudentInfoResultMap">
+        SELECT user_id, user_name, user_email, user_number
+        FROM users
+        WHERE user_token = #{user_token}
+    </select>
+
+    <resultMap id="StudentClassResultMap" type="com.lx.edusphere_server.dto.student.StudentClassResponse">
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="grade" column="grade"/>
+        <result property="headTeacherName" column="head_teacher_name"/>
+        <collection property="subjects" ofType="java.lang.String">
+            <result column="subject_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getStudentClasses" resultMap="StudentClassResultMap">
+        SELECT
+            c.class_id,
+            c.class_name,
+            c.grade,
+            u.user_name as head_teacher_name,
+            s.subject_name
+        FROM
+            classes c
+                JOIN
+            users u ON c.head_teacher_id = u.user_id
+                JOIN
+            class_students cs ON c.class_id = cs.class_id
+                JOIN
+            class_teachers ct ON c.class_id = ct.class_id
+                JOIN
+            subjects s ON ct.subject_id = s.subject_id
+        WHERE
+            cs.student_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+    </select>
+
+    <resultMap id="StudentScoreResultMap" type="com.lx.edusphere_server.dto.student.StudentScoreResponse">
+        <result property="scoreId" column="score_id"/>
+        <result property="subjectName" column="subject_name"/>
+        <result property="examName" column="exam_name"/>
+        <result property="examDate" column="exam_date"/>
+        <result property="score" column="score"/>
+        <result property="comment" column="comment"/>
+        <result property="teacherName" column="teacher_name"/>
+    </resultMap>
+
+    <select id="getStudentScores" resultMap="StudentScoreResultMap">
+        SELECT
+            es.score_id,
+            s.subject_name,
+            es.exam_name,
+            es.exam_date,
+            es.score,
+            es.comment,
+            u.user_name as teacher_name
+        FROM
+            exam_scores es
+                JOIN
+            subjects s ON es.subject_id = s.subject_id
+                JOIN
+            users u ON es.grader_id = u.user_id
+        WHERE
+            es.student_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+        ORDER BY
+            es.exam_date DESC
+    </select>
+
+    <resultMap id="StudentSubjectResultMap" type="com.lx.edusphere_server.dto.student.StudentSubjectResponse">
+        <result property="subjectId" column="subject_id"/>
+        <result property="subjectName" column="subject_name"/>
+    </resultMap>
+
+    <select id="getStudentSubjects" resultMap="StudentSubjectResultMap">
+        SELECT DISTINCT
+            s.subject_id,
+            s.subject_name
+        FROM
+            exam_scores es
+                JOIN
+            subjects s ON es.subject_id = s.subject_id
+        WHERE
+            es.student_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+    </select>
+
+    <resultMap id="SubjectScoreResultMap" type="com.lx.edusphere_server.dto.student.SubjectScoreResponse">
+        <result property="scoreId" column="score_id"/>
+        <result property="examName" column="exam_name"/>
+        <result property="examDate" column="exam_date"/>
+        <result property="score" column="score"/>
+        <result property="comment" column="comment"/>
+        <result property="teacherName" column="teacher_name"/>
+    </resultMap>
+
+    <select id="getScoresBySubject" resultMap="SubjectScoreResultMap">
+        SELECT
+            es.score_id,
+            es.exam_name,
+            es.exam_date,
+            es.score,
+            es.comment,
+            u.user_name as teacher_name
+        FROM
+            exam_scores es
+                JOIN
+            users u ON es.grader_id = u.user_id
+        WHERE
+            es.student_id = (SELECT user_id FROM users WHERE user_token = #{user_token})
+          AND es.subject_id = #{subject_id}
+        ORDER BY
+            es.exam_date DESC
+    </select>
+</mapper>

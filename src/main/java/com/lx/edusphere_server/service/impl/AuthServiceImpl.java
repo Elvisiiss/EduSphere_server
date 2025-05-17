@@ -23,19 +23,21 @@ public class AuthServiceImpl implements AuthService {
     private final PowerMapper powerMapper;
     private final TokenMapper tokenMapper;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final RoleMapper roleMapper;
 
     @Autowired
     public AuthServiceImpl(AuthMapper authMapper,
                            VerificationCodeService verificationCodeService,
                            EmailService emailService,
                            PowerMapper powerMapper,
-                           TokenMapper tokenMapper
-    ) {
+                           TokenMapper tokenMapper,
+                           RoleMapper roleMapper) {
         this.authMapper = authMapper;
         this.verificationCodeService = verificationCodeService;
         this.emailService = emailService;
         this.powerMapper = powerMapper;
         this.tokenMapper = tokenMapper;
+        this.roleMapper = roleMapper;
     }
 
     @Override
@@ -80,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUser_password(password); // 实际应用中应该对密码进行加密
 
         authMapper.CreateUser(user);
-
+        roleMapper.create_user_from_login_page(user.getUser_email());
         return BaseResponse.success("成功创建用户");
     }
 
@@ -174,7 +176,7 @@ public class AuthServiceImpl implements AuthService {
         String user_token = TokenGenerator.generateToken();
         tokenMapper.updateToken(user.getUser_name(),user_token);
         user.setUser_token(user_token);
-        return LoginResponse.success(user.getUser_email(), user.getUser_name(), powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
+        return LoginResponse.success(user.getUser_id(),user.getUser_email(), user.getUser_name(), powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
     }
 
     @Override
@@ -197,7 +199,7 @@ public class AuthServiceImpl implements AuthService {
         String user_token = TokenGenerator.generateToken();
         tokenMapper.updateToken(user.getUser_name(), user_token);
         user.setUser_token(user_token);
-        return LoginResponse.success(user.getUser_email(), user.getUser_name(),powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
+        return LoginResponse.success(user.getUser_id(), user.getUser_email(), user.getUser_name(),powerMapper.getPowerIdsByUserName(user.getUser_name()),user_token);
     }
 
     @Override

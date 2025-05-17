@@ -6,6 +6,11 @@ import com.lx.edusphere_server.dto.Role.ChooseOneRole;
 import com.lx.edusphere_server.dto.Role.GetAllRolesInfo;
 import com.lx.edusphere_server.dto.admin.AdminChooseOneUser;
 import com.lx.edusphere_server.dto.admin.GetAllUsersInfo;
+import com.lx.edusphere_server.dto.classes.ChooseOneClass;
+import com.lx.edusphere_server.dto.classes.GetOneClass;
+import com.lx.edusphere_server.dto.subject.ChooseOneSubject;
+import com.lx.edusphere_server.dto.teacher.GetAllTeacher;
+import com.lx.edusphere_server.entity.Subject;
 import com.lx.edusphere_server.entity.User;
 import com.lx.edusphere_server.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,5 +100,72 @@ public class AdminController {
     @PostMapping("/get_all_powers")
     public List<GetAllPowerInfo> get_all_powers(@RequestBody OnlyToken onlyToken) {
         return adminService.get_all_powers(onlyToken);
+    }
+
+
+
+    /**
+     * 学科管理 subjects表
+     */
+    //增加一个学科(学科管理：增)
+    @PostMapping("/add_one_subject")
+    public BaseResponse add_one_subject(@RequestBody ChooseOneSubject choose_one_subject) {
+        return adminService.add_one_subject(choose_one_subject);
+    }
+
+    //获取所有学科信息(学科管理:查)
+    @PostMapping("/get_all_subjects")
+    public List<Subject> get_all_subjects(@RequestBody OnlyToken onlyToken) {
+        return adminService.get_all_subjects(onlyToken);
+    }
+
+    //修改学科(学科管理:改)
+    @PostMapping("/update_subject")
+    public BaseResponse update_subject(@RequestBody ChooseOneSubject choose_one_subject) {
+        return adminService.update_subject(choose_one_subject);
+    }
+
+
+    //删除学科(学科管理:删)
+    @PostMapping("/delete_subject")
+    public BaseResponse delete_subject(@RequestBody ChooseOneSubject choose_one_subject) {
+        return adminService.delete_subject(choose_one_subject);
+    }
+
+
+    /**
+     * 班级管理  classes表
+     * */
+    //增加一个班级(班级管理：增)
+    @PostMapping("/add_one_class")
+    public BaseResponse add_one_class(@RequestBody ChooseOneClass choose_one_class) {
+        return adminService.add_one_class(choose_one_class);
+    }
+    //获取所有的班级(班级管理：查)
+    @PostMapping("/get_all_classes")
+    public List<GetOneClass> get_all_classes(@RequestBody OnlyToken onlyToken) {
+        return adminService.get_all_classes(onlyToken);
+    }
+
+    //获取所有的教师
+    @PostMapping("/get_all_teacher")
+    public List<GetAllTeacher> get_all_teacher(@RequestBody OnlyToken onlyToken) {
+        return adminService.get_all_teacher(onlyToken);
+    }
+
+    //修改班级信息(班级管理:改)
+    @PostMapping("/update_class_information")
+    public BaseResponse update_class_information(@RequestBody ChooseOneClass choose_one_class) {
+        return adminService.update_class_information(choose_one_class);
+    }
+    @PostMapping("/update_class_people")
+    public BaseResponse update_class_people(@RequestBody ChooseOneClass choose_one_class) {
+        return adminService.update_class_people(choose_one_class);
+    }
+
+    //删除班级(班级管理:删)
+    @PostMapping("/delete_class")
+    public BaseResponse delete_class(@RequestBody ChooseOneClass choose_one_class) {
+        return adminService.delete_class(choose_one_class);
     }
 }
