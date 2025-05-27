@@ -56,6 +56,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<TeacherClassResponse> get_teacher_class_for_all(OnlyToken onlyToken) {
+        if (!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(), "查看教师班级")) {
+            return List.of();
+        }
         // 1. 先查询教师的基本班级信息
         List<TeacherClassResponse> classes = teacherMapper.getTeacherBasicClasses(onlyToken);
 
@@ -98,6 +101,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public BaseResponse import_student_scores(ImportStudentScores import_student_scores) {
+        if (!powerMapper.ifThisTokenCanDoThis(import_student_scores.getUser_token(), "提交学生成绩")) {
+            return BaseResponse.error("提交成绩失败，权限不足");
+        }
         Long teacher_id = userMapper.get_user_id_by_user_token(import_student_scores.getUser_token());
         Long class_id = import_student_scores.getClass_id();
         Long subject_id = import_student_scores.getSubject_id();
@@ -145,12 +151,19 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Student> get_non_class_students(GetNonClassStudents get_non_class_students) {
+        if (!powerMapper.ifThisTokenCanDoThis(get_non_class_students.getUser_token(), "查看其他科目成绩")) {
+            return List.of();
+        }
         get_non_class_students.setPage(get_non_class_students.getPage() - 1);
+        get_non_class_students.setPage(get_non_class_students.getPage() * 10);
         return teacherMapper.get_non_class_students(get_non_class_students);
     }
 
     @Override
     public BaseResponse addStudentsToClass(AddStudentsToClass add_students_to_class) {
+        if (!powerMapper.ifThisTokenCanDoThis(add_students_to_class.getUser_token(), "添加学生")) {
+            return BaseResponse.error("添加学生失败，权限不足");
+        }
         for (Long student_id : add_students_to_class.getStudent_id()) {
             teacherMapper.add_students_to_class(add_students_to_class.getClass_id() ,student_id);
         }
@@ -159,12 +172,18 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public BaseResponse remove_student_from_class(RemoveStudentFromClass remove_student_from_class) {
+        if (!powerMapper.ifThisTokenCanDoThis(remove_student_from_class.getUser_token(), "删除学生")) {
+            return BaseResponse.error("删除学生失败，权限不足");
+        }
         teacherMapper.remove_student_from_class(remove_student_from_class);
         return BaseResponse.success("删除学生成功");
     }
 
     @Override
     public BaseResponse delete_student_score(DeleteStudentScore delete_student_score) {
+        if (!powerMapper.ifThisTokenCanDoThis(delete_student_score.getUser_token(), "删除学生成绩")) {
+            return BaseResponse.error("删除学生成绩失败，权限不足");
+        }
         teacherMapper.delete_student_score(delete_student_score);
         return BaseResponse.success("删除学生成绩成功");
     }

@@ -240,6 +240,9 @@ public class AdminServiceImpl implements AdminService {
     //增加一个学科(学科管理：增)
     @Override
     public BaseResponse add_one_subject(ChooseOneSubject choose_one_subject) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_subject.getUser_token(),"增加学科")){
+            return BaseResponse.error("增加学科失败，权限不够。");
+        }
         subjectMapper.add_one_subject(choose_one_subject);
         return BaseResponse.success("增加学科成功");
     }
@@ -247,12 +250,18 @@ public class AdminServiceImpl implements AdminService {
     //获取所有学科信息(学科管理:查)
     @Override
     public List<Subject> get_all_subjects(OnlyToken onlyToken) {
+        if(!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(),"查看所有学科")){
+            return List.of();
+        }
         return subjectMapper.get_all_subjects();
     }
 
     //修改学科(学科管理:改)
     @Override
     public BaseResponse update_subject(ChooseOneSubject choose_one_subject) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_subject.getUser_token(),"修改学科")){
+            return BaseResponse.error("修改学科失败，权限不够。");
+        }
         subjectMapper.update_subject(choose_one_subject);
         return BaseResponse.success("修改学科成功");
     }
@@ -261,6 +270,9 @@ public class AdminServiceImpl implements AdminService {
     //删除学科(学科管理:删)
     @Override
     public BaseResponse delete_subject(ChooseOneSubject choose_one_subject) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_subject.getUser_token(),"删除学科")){
+            return BaseResponse.error("删除学科失败，权限不够。");
+        }
         if(subjectMapper.is_there_a_class_that_has_this_course(choose_one_subject.getSubject_id())){
             return BaseResponse.error("删除学科失败，有班级正在学习这门科。");
         }
@@ -275,6 +287,9 @@ public class AdminServiceImpl implements AdminService {
     //增加一个班级(班级管理：增)
     @Override
     public BaseResponse add_one_class(ChooseOneClass choose_one_class) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_class.getUser_token(),"增加班级")){
+            return BaseResponse.error("增加班级失败，权限不够。");
+        }
         if(classMapper.get_class_id_by_class_name(choose_one_class.getClass_name())!=null){
             return BaseResponse.error("班级名已存在");
         }
@@ -289,9 +304,9 @@ public class AdminServiceImpl implements AdminService {
     //获取所有的班级(班级管理：查)
     @Override
     public List<GetOneClass> get_all_classes(OnlyToken onlyToken) {
-//        if(!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(),"查看所有班级信息")){
-//            return List.of();
-//        }
+        if(!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(),"查看班级信息")){
+            return List.of();
+        }
 
         // 获取所有班级的基本信息
         List<GetOneClass> classes = classMapper.selectAllClassesBasicInfo();
@@ -314,6 +329,9 @@ public class AdminServiceImpl implements AdminService {
     //获取所有的教师
     @Override
     public List<GetAllTeacher> get_all_teacher(OnlyToken onlyToken) {
+        if(!powerMapper.ifThisTokenCanDoThis(onlyToken.getUser_token(),"获取所有的教师")){
+            return List.of();
+        }
         return adminMapper.get_all_teacher();
     }
 
@@ -321,6 +339,9 @@ public class AdminServiceImpl implements AdminService {
     //修改班级信息(班级管理:改)
     @Override
     public BaseResponse update_class_information(ChooseOneClass choose_one_class) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_class.getUser_token(),"获取所有的教师")){
+            return BaseResponse.error("获取教师失败，权限不够。");
+        }
         classMapper.update_class(choose_one_class);
         classMapper.delete_class_in_teacher(choose_one_class.getClass_id());
         for (subject_teacher subject_teacher : choose_one_class.getSubject_teacher()) {
@@ -332,12 +353,18 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public BaseResponse update_class_people(ChooseOneClass choose_one_class) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_class.getUser_token(),"修改班级人员")){
+            return BaseResponse.error("修改班级人员失败，权限不够。");
+        }
         return BaseResponse.success("修改班级人员成功");
     }
 
     //删除班级(班级管理:删)
     @Override
     public BaseResponse delete_class(ChooseOneClass choose_one_class) {
+        if(!powerMapper.ifThisTokenCanDoThis(choose_one_class.getUser_token(),"删除班级")){
+            return BaseResponse.error("删除班级失败，权限不够。");
+        }
         Long class_id = choose_one_class.getClass_id();
         classMapper.delete_class_exam_scores(class_id);
         classMapper.delete_class_in_students(class_id);
