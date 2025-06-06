@@ -38,4 +38,24 @@
         SELECT user_id FROM users WHERE user_token = #{user_token}
     </select>
 
+    <select id="get_all_my_file">
+        SELECT file_url,file_name FROM user_file
+        WHERE belong_user = #{user_id}
+        AND is_deleted = 0
+    </select>
+
+    <insert id="upload_img">
+        INSERT INTO user_file(belong_user, file_url, file_name)
+        VALUES (#{belong_user},#{file_url},#{file_name})
+    </insert>
+
+    <update id="delete_file">
+        UPDATE user_file SET is_deleted = 1
+        WHERE belong_user = #{user_id} AND file_url = #{file_url}
+    </update>
+
+    <select id="get_one_file">
+        SELECT * FROM user_file WHERE file_url = #{file_url}
+    </select>
+
 </mapper>

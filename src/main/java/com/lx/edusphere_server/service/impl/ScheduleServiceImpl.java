@@ -105,6 +105,32 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public BaseResponse cancel_schedule(ChooseOneEvent choose_one_event) {
+        choose_one_event.setBelong_user(userMapper.get_user_id_by_user_token(choose_one_event.getUser_token()));
+        if(choose_one_event.getBelong_user() == null){
+            return BaseResponse.error("取消日程失败，无该用户");
+        }
+        if(!scheduleMapper.did_this_schedule_belong_this_user(choose_one_event.getEvent_id(), choose_one_event.getBelong_user())){
+            return BaseResponse.error("取消日程失败，试图篡改其他用户日程");
+        }
+        scheduleMapper.cancel_schedule(choose_one_event);
+        return BaseResponse.success("取消日程成功");
+    }
+
+    @Override
+    public BaseResponse restore_schedule(ChooseOneEvent choose_one_event) {
+        choose_one_event.setBelong_user(userMapper.get_user_id_by_user_token(choose_one_event.getUser_token()));
+        if(choose_one_event.getBelong_user() == null){
+            return BaseResponse.error("还原日程失败，无该用户");
+        }
+        if(!scheduleMapper.did_this_schedule_belong_this_user(choose_one_event.getEvent_id(), choose_one_event.getBelong_user())){
+            return BaseResponse.error("还原日程失败，试图篡改其他用户日程");
+        }
+        scheduleMapper.restore_schedule(choose_one_event);
+        return BaseResponse.success("删除日程成功");
+    }
+
+    @Override
     public BaseResponse finish_event(ChooseOneEvent choose_one_event) {
         choose_one_event.setBelong_user(userMapper.get_user_id_by_user_token(choose_one_event.getUser_token()));
         if(choose_one_event.getBelong_user() == null){

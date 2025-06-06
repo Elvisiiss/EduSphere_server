@@ -81,6 +81,18 @@
         WHERE event_id = #{event_id}
     </update>
 
+    <update id="cancel_schedule">
+        UPDATE schedule_event SET
+            state = 'cancelled'
+        WHERE event_id = #{event_id}
+    </update>
+
+    <update id="restore_schedule">
+        UPDATE schedule_event SET
+            state = 'active'
+        WHERE event_id = #{event_id}
+    </update>
+
     <select id="get_one_event">
         SELECT * FROM schedule_event WHERE event_id = #{event_id}
     </select>

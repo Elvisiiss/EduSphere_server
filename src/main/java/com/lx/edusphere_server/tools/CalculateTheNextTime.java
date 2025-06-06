@@ -69,8 +69,9 @@ public class CalculateTheNextTime {
         int dayOfMonth = config.getDay();
         // 计算本月的目标日期
         LocalDate thisMonth = adjustToValidDayOfMonth(come.withDayOfMonth(1), dayOfMonth);
-        // 如果本月目标日期尚未发生
-        if (!thisMonth.isBefore(come)) {
+
+        // 检查本月目标日期是否在未来（排除当天）
+        if (thisMonth.isAfter(come)) {
             return thisMonth;
         }
         // 否则返回下个月的目标日期
@@ -89,8 +90,9 @@ public class CalculateTheNextTime {
         if (candidateThisMonth.getMonth() != baseThisMonth.getMonth()) {
             candidateThisMonth = baseThisMonth.with(TemporalAdjusters.lastInMonth(targetDow));
         }
-        // 如果本月目标日期尚未发生
-        if (!candidateThisMonth.isBefore(come)) {
+
+        // 检查本月目标日期是否在未来（排除当天）
+        if (candidateThisMonth.isAfter(come)) {
             return candidateThisMonth;
         }
 
@@ -109,8 +111,9 @@ public class CalculateTheNextTime {
 
         // 计算今年的目标日期
         LocalDate thisYear = adjustToValidDayOfMonth(come.withMonth(month).withDayOfMonth(1), day);
-        // 如果今年目标日期尚未发生
-        if (!thisYear.isBefore(come)) {
+
+        // 检查今年目标日期是否在未来（排除当天）
+        if (thisYear.isAfter(come)) {
             return thisYear;
         }
         // 否则返回明年的目标日期
@@ -154,8 +157,11 @@ public class CalculateTheNextTime {
             }
         }
 
-        // 否则跳到目标周
-        LocalDate base = come.plusWeeks(interval);
+        // 计算目标周的开始日期（下interval周的周一）
+        LocalDate base = come.plusWeeks(interval)
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // 在目标周中查找第一个匹配的日期
         for (int i = 0; i < 7; i++) {
             LocalDate candidate = base.plusDays(i);
             int candidateDow = candidate.getDayOfWeek().getValue() % 7;

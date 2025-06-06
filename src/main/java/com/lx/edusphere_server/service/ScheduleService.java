@@ -22,4 +22,8 @@ public interface ScheduleService {
     List<Events> get_schedules_by_date(ChooseOneDay choose_one_day);
 
     List<Events> find_events_by_key_word(ChooseOneString choose_one_string);
+
+    BaseResponse cancel_schedule(ChooseOneEvent choose_one_event);
+
+    BaseResponse restore_schedule(ChooseOneEvent choose_one_event);
 }

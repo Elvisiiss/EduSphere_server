@@ -59,6 +59,18 @@ public class ScheduleController {
         return scheduleService.delete_schedule(choose_one_event);
     }
 
+    // 取消日程
+    @PostMapping("/cancel_schedule")
+    public BaseResponse cancel_schedule(@RequestBody ChooseOneEvent choose_one_event) {
+        return scheduleService.cancel_schedule(choose_one_event);
+    }
+
+    // 还原日程
+    @PostMapping("/restore_schedule")
+    public BaseResponse restore_schedule(@RequestBody ChooseOneEvent choose_one_event) {
+        return scheduleService.restore_schedule(choose_one_event);
+    }
+
     // 搜索事件通过关键词
     @PostMapping("/find_events_by_key_word")
     public List<Events> find_events_by_key_word(@RequestBody ChooseOneString choose_one_string) {

@@ -39,4 +39,8 @@ public interface ScheduleMapper {
     List<Event> get_range_days_event_with_str(Long user_id, LocalDate start_date, LocalDate end_date, String str);
 
     List<Event> get_all_days_event_with_str(Long user_id, String str);
+
+    void cancel_schedule(ChooseOneEvent choose_one_event);
+
+    void restore_schedule(ChooseOneEvent choose_one_event);
 }

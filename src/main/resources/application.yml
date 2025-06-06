@@ -27,6 +27,14 @@ spring:
             enable: true
           ssl:
             enable: true
+  file:
+    where: ABC
+    give_all: DEF
+    deleted: GHI
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
 
 server:
   port: 8080
