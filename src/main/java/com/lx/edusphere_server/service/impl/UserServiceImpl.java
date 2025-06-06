@@ -95,9 +95,7 @@ public class UserServiceImpl implements UserService {
         String result = ip_and_name.substring(secondIndex + 1);
 
         String from = Base_url + image_in_table.getBelong_user().toString() + "\\" + result;
-        System.out.println(from);
         String to = Base_url_deleted + image_in_table.getBelong_user().toString() + "\\" + result + "." + image_in_table.getFile_name();
-        System.out.println(to);
 
         Path source = Paths.get(from);
         Path target = Paths.get(to);
@@ -111,7 +109,6 @@ public class UserServiceImpl implements UserService {
                     target,
                     StandardCopyOption.REPLACE_EXISTING
             );
-            System.out.println("文件移动并重命名成功！");
         } catch (IOException e) {
             System.err.println("操作失败: " + e.getMessage());
             e.printStackTrace();

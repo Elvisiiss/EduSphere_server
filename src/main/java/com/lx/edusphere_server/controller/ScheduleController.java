@@ -60,7 +60,7 @@ public class ScheduleController {
     }
 
     // 取消日程
-    @PostMapping("/cancel_schedule")
+    @PostMapping("/cancel_event")
     public BaseResponse cancel_schedule(@RequestBody ChooseOneEvent choose_one_event) {
         return scheduleService.cancel_schedule(choose_one_event);
     }
