@@ -2,9 +2,9 @@ spring:
   application:
     name: EduSphere_server
   datasource:
-    url: jdbc:mysql://10.168.89.204:3306/Edu_Sphere?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.20.250:3306/Edu_Sphere?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: Huawei@311
+    password: 偷看密码是吧
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -17,8 +17,8 @@ spring:
   mail:
     host: smtp.exmail.qq.com
     port: 465
-    username: 3122230220@gnust.edu.cn
-    password: 8Yhh8JZxo4k6H6M5
+    username: 偷看账户是吧
+    password: 偷看密钥是吧
     properties:
       mail:
         smtp:
