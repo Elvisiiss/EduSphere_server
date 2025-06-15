@@ -58,4 +58,12 @@
         SELECT * FROM user_file WHERE file_url = #{file_url}
     </select>
 
+    <select id="get_user_password">
+        SELECT COUNT(*) > 0 FROM users WHERE user_id = #{user_id} AND user_password = #{user_password}
+    </select>
+
+    <update id="set_new_password">
+        UPDATE users SET user_password = #{new_password} WHERE user_id = #{user_id}
+    </update>
+
 </mapper>

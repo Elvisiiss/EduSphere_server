@@ -5,6 +5,7 @@ import com.lx.edusphere_server.dto.EmailCodeResponse;
 import com.lx.edusphere_server.dto.OnlyToken;
 import com.lx.edusphere_server.dto.User.ChooseOneImage;
 import com.lx.edusphere_server.dto.User.ChooseOneUserInformation;
+import com.lx.edusphere_server.dto.User.ReSetPassword;
 import com.lx.edusphere_server.entity.Image;
 import com.lx.edusphere_server.entity.Image_in_table;
 import com.lx.edusphere_server.entity.User_information;
@@ -142,6 +143,19 @@ public class UserServiceImpl implements UserService {
         Files.write(path, file.getBytes());
 
         return new BaseResponse("上传成功","500");
+    }
+
+    @Override
+    public BaseResponse reset_passwd(ReSetPassword reset_passwd) {
+        reset_passwd.setUser_id(userMapper.get_user_id_by_user_token(reset_passwd.getUser_token()));
+        if(reset_passwd.getUser_id() == null){
+            return BaseResponse.error("用户唯一象征物无效");
+        }
+        if(userMapper.get_user_password(reset_passwd.getUser_id(),reset_passwd.getUser_password())){
+            return BaseResponse.error("原密码错误");
+        }
+        userMapper.set_new_password(reset_passwd.getUser_id(),reset_passwd.getNew_password());
+        return BaseResponse.success("成功重置密码");
     }
 
 

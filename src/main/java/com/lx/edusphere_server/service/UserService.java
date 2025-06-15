@@ -4,6 +4,7 @@ import com.lx.edusphere_server.dto.BaseResponse;
 import com.lx.edusphere_server.dto.OnlyToken;
 import com.lx.edusphere_server.dto.User.ChooseOneImage;
 import com.lx.edusphere_server.dto.User.ChooseOneUserInformation;
+import com.lx.edusphere_server.dto.User.ReSetPassword;
 import com.lx.edusphere_server.entity.Image;
 import com.lx.edusphere_server.entity.User_information;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,4 +24,6 @@ public interface UserService {
     BaseResponse delete_my_img(ChooseOneImage choose_one_image);
 
     BaseResponse upload_img(String user_token, MultipartFile file, String file_name) throws IOException;
+
+    BaseResponse reset_passwd(ReSetPassword reset_passwd);
 }

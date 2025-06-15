@@ -3,6 +3,7 @@ package com.lx.edusphere_server.controller;
 import com.lx.edusphere_server.dto.*;
 import com.lx.edusphere_server.dto.User.ChooseOneImage;
 import com.lx.edusphere_server.dto.User.ChooseOneUserInformation;
+import com.lx.edusphere_server.dto.User.ReSetPassword;
 import com.lx.edusphere_server.entity.Image;
 import com.lx.edusphere_server.entity.User_information;
 import com.lx.edusphere_server.service.UserService;
@@ -53,4 +54,10 @@ public class UserController {
     public BaseResponse delete_my_img(@RequestBody ChooseOneImage choose_one_image) {
         return userService.delete_my_img(choose_one_image);
     }
+
+    @PostMapping("/reset_passwd")
+    public BaseResponse reset_passwd(@RequestBody ReSetPassword reset_passwd) {
+        return userService.reset_passwd(reset_passwd);
+    }
+
 }

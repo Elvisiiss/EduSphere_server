@@ -29,4 +29,8 @@ public interface UserMapper {
     void delete_file(Long user_id, String file_url);
 
     Image_in_table get_one_file(String file_url);
+
+    boolean get_user_password(Long user_id, String user_password);
+
+    void set_new_password(Long user_id, String new_password);
 }
