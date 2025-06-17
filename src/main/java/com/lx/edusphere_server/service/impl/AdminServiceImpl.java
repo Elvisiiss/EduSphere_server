@@ -189,9 +189,6 @@ public class AdminServiceImpl implements AdminService {
         if(!powerMapper.ifThisTokenCanDoThis(chooseOneRole.getUser_token(),"更新角色信息")){
             return BaseResponse.error("更新角色信息失败，权限不足");
         }
-//        if(roleMapper.is_there_such_a_name(chooseOneRole.getRole_name())){
-//            return BaseResponse.error("更新角色信息失败，名称已存在。");
-//        }
         roleMapper.remove_role_power(chooseOneRole);
         roleMapper.renew_role_name(chooseOneRole);
         try{
@@ -243,6 +240,9 @@ public class AdminServiceImpl implements AdminService {
         if(!powerMapper.ifThisTokenCanDoThis(choose_one_subject.getUser_token(),"增加学科")){
             return BaseResponse.error("增加学科失败，权限不够。");
         }
+        if(choose_one_subject.getSubject_name().isEmpty()){
+            return BaseResponse.error("增加学科失败，名称不能为空。");
+        }
         subjectMapper.add_one_subject(choose_one_subject);
         return BaseResponse.success("增加学科成功");
     }
@@ -261,6 +261,9 @@ public class AdminServiceImpl implements AdminService {
     public BaseResponse update_subject(ChooseOneSubject choose_one_subject) {
         if(!powerMapper.ifThisTokenCanDoThis(choose_one_subject.getUser_token(),"修改学科")){
             return BaseResponse.error("修改学科失败，权限不够。");
+        }
+        if(choose_one_subject.getSubject_name().isEmpty()){
+            return BaseResponse.error("修改学科失败，名称不能为空。");
         }
         subjectMapper.update_subject(choose_one_subject);
         return BaseResponse.success("修改学科成功");
