@@ -3,6 +3,7 @@ package com.lx.edusphere_server.controller;
 import com.lx.edusphere_server.dto.*;
 import com.lx.edusphere_server.dto.Schedule.*;
 import com.lx.edusphere_server.entity.Event;
+import com.lx.edusphere_server.entity.Memo;
 import com.lx.edusphere_server.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -75,5 +76,29 @@ public class ScheduleController {
     @PostMapping("/find_events_by_key_word")
     public List<Events> find_events_by_key_word(@RequestBody ChooseOneString choose_one_string) {
         return scheduleService.find_events_by_key_word(choose_one_string);
+    }
+
+    // 获取我的所有便签
+    @PostMapping("/get_all_memo")
+    public List<Memo> get_all_memo(@RequestBody OnlyToken only_token) {
+        return scheduleService.get_all_memo(only_token);
+    }
+
+    // 修改我的某个便签
+    @PostMapping("/update_memo")
+    public BaseResponse update_memo(@RequestBody ChooseOneMemo choose_one_memo) {
+        return scheduleService.update_memo(choose_one_memo);
+    }
+
+    // 删除我的某个便签
+    @PostMapping("/delete_memo")
+    public BaseResponse delete_memo(@RequestBody ChooseOneMemo choose_one_memo) {
+        return scheduleService.delete_memo(choose_one_memo);
+    }
+
+    // 增加一个便签
+    @PostMapping("/add_memo")
+    public BaseResponse add_memo(@RequestBody ChooseOneMemo choose_one_memo) {
+        return scheduleService.add_memo(choose_one_memo);
     }
 }

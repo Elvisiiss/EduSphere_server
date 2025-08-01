@@ -4,24 +4,24 @@
 <mapper namespace="com.lx.edusphere_server.mapper.ScheduleMapper">
 
     <select id="findEventsByUserIdAndDateRange" resultType="com.lx.edusphere_server.entity.Event">
-        SELECT
-            *
+        SELECT *
         FROM schedule_event
-        WHERE
-            belong_user = #{user_id}
+        WHERE belong_user = #{user_id}
           AND start_date BETWEEN #{start_date} AND #{end_date}
     </select>
 
     <select id="get_schedules_by_date_without_prediction">
-        SELECT * FROM schedule_event WHERE
-                                        belong_user = #{user_id} AND
-                                        start_date = #{date}
+        SELECT *
+        FROM schedule_event
+        WHERE belong_user = #{user_id}
+          AND start_date = #{date}
     </select>
 
     <select id="get_all_my_schedule">
-        SELECT * FROM schedule_event WHERE
-                                        belong_user = #{user_id}
-                                    AND state = 'active'
+        SELECT *
+        FROM schedule_event
+        WHERE belong_user = #{user_id}
+          AND state = 'active'
     </select>
 
     <insert id="create_schedule">
@@ -37,64 +37,67 @@
                                    state,
                                    occurrence_count,
                                    degree_of_importance,
-                                   img_url
-        ) VALUES (#{belong_user},
-                  #{event_name},
-                  #{event_describe},
-                  #{repeat_type},
-                  #{repeat_config},
-                  #{start_date},
-                  #{next_trigger_date},
-                  #{end_type},
-                  #{end_value},
-                  'active',
-                  0,
-                  #{degree_of_importance},
-                  #{img_url}
-        )
+                                   img_url)
+        VALUES (#{belong_user},
+                #{event_name},
+                #{event_describe},
+                #{repeat_type},
+                #{repeat_config},
+                #{start_date},
+                #{next_trigger_date},
+                #{end_type},
+                #{end_value},
+                'active',
+                0,
+                #{degree_of_importance},
+                #{img_url})
     </insert>
 
     <select id="did_this_schedule_belong_this_user">
-        SELECT COUNT(*) > 0 FROM schedule_event
-        WHERE event_id = #{event_id} AND belong_user = #{user_id}
+        SELECT COUNT(*) > 0
+        FROM schedule_event
+        WHERE event_id = #{event_id}
+          AND belong_user = #{user_id}
     </select>
 
     <update id="update_schedule">
-        UPDATE schedule_event SET
-            event_name = #{event_name},
-            event_describe = #{event_describe},
-            repeat_type = #{repeat_type},
-            repeat_config = #{repeat_config},
-            start_date = #{start_date},
-            next_trigger_date = #{next_trigger_date},
-            end_type = #{end_type},
-            end_value = #{end_value},
-            state = 'active',
+        UPDATE schedule_event
+        SET event_name           = #{event_name},
+            event_describe       = #{event_describe},
+            repeat_type          = #{repeat_type},
+            repeat_config        = #{repeat_config},
+            start_date           = #{start_date},
+            next_trigger_date    = #{next_trigger_date},
+            end_type             = #{end_type},
+            end_value            = #{end_value},
+            state                = 'active',
             degree_of_importance = #{degree_of_importance},
-            img_url = #{img_url}
+            img_url              = #{img_url}
         WHERE event_id = #{event_id}
     </update>
 
     <update id="delete_schedule">
-        UPDATE schedule_event SET
-            state = 'deleted'
+        UPDATE schedule_event
+        SET state = 'deleted'
         WHERE event_id = #{event_id}
     </update>
 
     <update id="cancel_schedule">
-        UPDATE schedule_event SET
-            state = 'cancelled'
+        UPDATE schedule_event
+        SET state = 'cancelled'
         WHERE event_id = #{event_id}
     </update>
 
     <update id="restore_schedule">
-        UPDATE schedule_event SET
-            state = 'active'
+        UPDATE schedule_event
+        SET state = 'active'
         WHERE event_id = #{event_id}
     </update>
 
     <select id="get_one_event">
-        SELECT * FROM schedule_event WHERE event_id = #{event_id}
+        SELECT *
+        FROM schedule_event
+        WHERE event_id = #{event_id}
     </select>
 
     <insert id="insert_repeat_event">
@@ -110,58 +113,74 @@
                                    state,
                                    occurrence_count,
                                    degree_of_importance,
-                                   img_url
-        ) VALUES (#{belong_user},
-                  #{event_name},
-                  #{event_describe},
-                  #{repeat_type},
-                  #{repeat_config},
-                  #{start_date},
-                  #{next_trigger_date},
-                  #{end_type},
-                  #{end_value},
-                  'active',
-                  #{occurrence_count},
-                  #{degree_of_importance},
-                  #{img_url}
-                 )
+                                   img_url)
+        VALUES (#{belong_user},
+                #{event_name},
+                #{event_describe},
+                #{repeat_type},
+                #{repeat_config},
+                #{start_date},
+                #{next_trigger_date},
+                #{end_type},
+                #{end_value},
+                'active',
+                #{occurrence_count},
+                #{degree_of_importance},
+                #{img_url})
     </insert>
 
     <update id="en_completed_event">
-        UPDATE schedule_event SET
-            state = 'completed'
+        UPDATE schedule_event
+        SET state = 'completed'
         WHERE event_id = #{event_id}
     </update>
 
     <select id="get_one_day_event_with_str">
-        SELECT
-            *
+        SELECT *
         FROM schedule_event
-        WHERE
-            belong_user = #{user_id}
+        WHERE belong_user = #{user_id}
           AND start_date = #{date}
           AND (event_name LIKE CONCAT('%', #{str}, '%') OR event_describe LIKE CONCAT('%', #{str}, '%'))
     </select>
 
     <select id="get_range_days_event_with_str">
-        SELECT
-            *
+        SELECT *
         FROM schedule_event
-        WHERE
-            belong_user = #{user_id}
-        AND start_date BETWEEN #{start_date} AND #{end_date}
-        AND (event_name LIKE CONCAT('%', #{str}, '%') OR event_describe LIKE CONCAT('%', #{str}, '%'))
-    </select>
-
-    <select id="get_all_days_event_with_str">
-        SELECT
-            *
-        FROM schedule_event
-        WHERE
-            belong_user = #{user_id}
+        WHERE belong_user = #{user_id}
+          AND start_date BETWEEN #{start_date} AND #{end_date}
           AND (event_name LIKE CONCAT('%', #{str}, '%') OR event_describe LIKE CONCAT('%', #{str}, '%'))
     </select>
 
+    <select id="get_all_days_event_with_str">
+        SELECT *
+        FROM schedule_event
+        WHERE belong_user = #{user_id}
+          AND (event_name LIKE CONCAT('%', #{str}, '%') OR event_describe LIKE CONCAT('%', #{str}, '%'))
+    </select>
 
+    <select id="get_all_memo">
+        SELECT *
+        FROM memo
+        WHERE belong_user = #{user_id}
+    </select>
 
+    <update id="update_memo">
+        UPDATE memo
+        SET content     = #{content},
+            update_time = NOW()
+        WHERE belong_user = #{user_id}
+          AND memo_id = #{memo_id}
+    </update>
+
+    <delete id="delete_memo">
+        DELETE
+        FROM memo
+        WHERE belong_user = #{user_id}
+          AND memo_id = #{memo_id}
+    </delete>
+
+    <insert id="add_memo">
+        INSERT INTO memo(memo_id, belong_user, content, create_time, update_time)
+        VALUES (null, #{user_id}, #{content}, NOW(), NOW())
+    </insert>
 </mapper>

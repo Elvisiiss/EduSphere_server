@@ -1,8 +1,10 @@
 package com.lx.edusphere_server.service;
 
 import com.lx.edusphere_server.dto.BaseResponse;
+import com.lx.edusphere_server.dto.OnlyToken;
 import com.lx.edusphere_server.dto.Schedule.*;
 import com.lx.edusphere_server.entity.Event;
+import com.lx.edusphere_server.entity.Memo;
 
 
 import java.util.List;
@@ -26,4 +28,12 @@ public interface ScheduleService {
     BaseResponse cancel_schedule(ChooseOneEvent choose_one_event);
 
     BaseResponse restore_schedule(ChooseOneEvent choose_one_event);
+
+    List<Memo> get_all_memo(OnlyToken only_token);
+
+    BaseResponse update_memo(ChooseOneMemo choose_one_memo);
+
+    BaseResponse delete_memo(ChooseOneMemo choose_one_memo);
+
+    BaseResponse add_memo(ChooseOneMemo choose_one_memo);
 }

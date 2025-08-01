@@ -1,8 +1,10 @@
 package com.lx.edusphere_server.service.impl;
 
 import com.lx.edusphere_server.dto.BaseResponse;
+import com.lx.edusphere_server.dto.OnlyToken;
 import com.lx.edusphere_server.dto.Schedule.*;
 import com.lx.edusphere_server.entity.Event;
+import com.lx.edusphere_server.entity.Memo;
 import com.lx.edusphere_server.entity.RepeatConfig;
 import com.lx.edusphere_server.mapper.ScheduleMapper;
 import com.lx.edusphere_server.mapper.UserMapper;
@@ -128,6 +130,45 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         scheduleMapper.restore_schedule(choose_one_event);
         return BaseResponse.success("删除日程成功");
+    }
+
+    @Override
+    public List<Memo> get_all_memo(OnlyToken only_token) {
+        Long user_id = userMapper.get_user_id_by_user_token(only_token.getUser_token());
+        if(user_id == null){
+            return List.of();
+        }
+        return scheduleMapper.get_all_memo(user_id);
+    }
+
+    @Override
+    public BaseResponse update_memo(ChooseOneMemo choose_one_memo) {
+        choose_one_memo.setUser_id(userMapper.get_user_id_by_user_token(choose_one_memo.getUser_token()));
+        if(choose_one_memo.getUser_id() == null){
+            return BaseResponse.error("用户唯一象征物无效");
+        }
+        scheduleMapper.update_memo(choose_one_memo);
+        return BaseResponse.success("更新便签成功");
+    }
+
+    @Override
+    public BaseResponse delete_memo(ChooseOneMemo choose_one_memo) {
+        choose_one_memo.setUser_id(userMapper.get_user_id_by_user_token(choose_one_memo.getUser_token()));
+        if(choose_one_memo.getUser_id() == null){
+            return BaseResponse.error("用户唯一象征物无效");
+        }
+        scheduleMapper.delete_memo(choose_one_memo);
+        return BaseResponse.success("删除便签成功");
+    }
+
+    @Override
+    public BaseResponse add_memo(ChooseOneMemo choose_one_memo) {
+        choose_one_memo.setUser_id(userMapper.get_user_id_by_user_token(choose_one_memo.getUser_token()));
+        if(choose_one_memo.getUser_id() == null){
+            return BaseResponse.error("用户唯一象征物无效");
+        }
+        scheduleMapper.add_memo(choose_one_memo);
+        return BaseResponse.success("添加便签成功");
     }
 
     @Override

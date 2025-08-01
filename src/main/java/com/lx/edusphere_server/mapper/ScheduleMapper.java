@@ -2,7 +2,9 @@ package com.lx.edusphere_server.mapper;
 
 
 import com.lx.edusphere_server.dto.Schedule.ChooseOneEvent;
+import com.lx.edusphere_server.dto.Schedule.ChooseOneMemo;
 import com.lx.edusphere_server.entity.Event;
+import com.lx.edusphere_server.entity.Memo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.time.LocalDate;
@@ -43,4 +45,12 @@ public interface ScheduleMapper {
     void cancel_schedule(ChooseOneEvent choose_one_event);
 
     void restore_schedule(ChooseOneEvent choose_one_event);
+
+    List<Memo> get_all_memo(Long user_id);
+
+    void update_memo(ChooseOneMemo choose_one_memo);
+
+    void delete_memo(ChooseOneMemo choose_one_memo);
+
+    void add_memo(ChooseOneMemo choose_one_memo);
 }
